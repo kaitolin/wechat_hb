@@ -48,24 +48,19 @@ class IndexAction extends AuthAction {
 		else 
 		{
 			$par = $_GET['_URL_'][2];   //u
-			$get_openid = $_GET['_URL_'][3];   //openid
+			$get_bagid = $_GET['_URL_'][3];   //openid
 			
-			if(isset($par) && isset($get_openid))
+			if(isset($par) && isset($get_bagid))
 			{
-				$r = $this->getUserBag($get_openid);
-				if(isset($r))
+				$oldBag = $this->getUserByBagId($get_bagid);
+				if(isset($bagUser))
 				{
-					$oldUser = $this->getUser($get_openid);
-					if(isset($oldUser))
-					{
-					   $oldUser['bagCount'] = $this->getUserBagCount($get_openid);
-					}
+				   $oldBag['bagCount'] = $this->getUserBagCount($get_bagid);
 				}
 			}
 
 			//当前用户是不是有记录
 			//$currentUser = $this->getUser($_SESSION["openid"]);
-			$userBag=$this->getUserBag($_SESSION["openid"]);
 			
 			//$this->currentUser =$currentUser;
 			
@@ -79,7 +74,7 @@ class IndexAction extends AuthAction {
 				}
 				//获取当前Bag状态
 				//$userBag=$this->getUserBag($_SESSION["openid"]);
-				if(!isset($userBag) && isset($_SESSION["bag"]) && isset($_SESSION["user"]))
+				if(isset($_SESSION["bag"]) && isset($_SESSION["user"]))
 				{
 					$this->addUserBag($_SESSION["bag"]);
 				}
@@ -88,25 +83,19 @@ class IndexAction extends AuthAction {
 			}
 			else
 		    {
-		    	if(isset($oldUser))
+		    	//添加访问记录
+		    	if(isset($oldBag))
 				{
-					$oldUserBag=$this->getUserBag($oldUser["openid"]);
-					if(isset($oldUserBag) && isset($_SESSION["openid"]) && $_SESSION["openid"] != $oldUser["openid"])
+					if(isset($_SESSION["openid"]) && $_SESSION["openid"] != $oldBag["openid"])
 					{
-						$this->addUserView($_SESSION["openid"],$oldUserBag);
+						$this->addUserView($_SESSION["openid"],$oldBag);
 					}
 				}
-		    	if(!isset($userBag))
-				{
-					$bag = $this->getRandomBagType();
-					$_SESSION["bag"] = $bag; //设置得到的bag的Session
-				}
-				else
-				{
-					$_SESSION["bag"] = $userBag;
-				}
+				
+				$bag = $this->getRandomBagType();
+				$_SESSION["bag"] = $bag; //设置得到的bag的Session
 				$this->bag =$_SESSION["bag"];
-				$this->oldUser =$oldUser;
+				$this->oldUser =$oldBag;
 				$this->display();
 		    }
 		}
@@ -170,24 +159,17 @@ class IndexAction extends AuthAction {
 	    return $result;
     } 
 
-	private function getUserBagCount($openid){
-   		$User = M('user_bag');
-		$con['openid'] = $openid;
-		$con['isfinish'] = 0;
-		$result=$User->where($con)->find();
-		if(isset($result))
-		{
-			$View = M('user_view');
-			$c['openid'] = $openid;
-			$list = $View->where($c)->select();
-		   return count($list);
-		}
-	    return 0;
+	private function getUserBagCount($bagid){
+		$View = M('user_view');
+		$c['bagid'] = $bagid;
+		$list = $View->where($c)->select();
+	   return count($list);
     } 
 	
 	private function addUserBag($bag){
    		$Bag = M('user_bag');
 		$Bag->create(); //创建User数据对象
+		$Bag->bagid = $bag["bagcode"];
 	    $Bag->openid=$_SESSION["openid"];
 		$Bag->nickname = $_SESSION["user"]["nickname"];
 		$Bag->bagtitle = $bag["bagtitle"];
@@ -201,19 +183,28 @@ class IndexAction extends AuthAction {
    		$View = M('user_view');
 		$con['openid'] = $userBag["openid"];
 		$con['view_openid'] = $openid;
-		$con['bagid'] = $userBag["id"];
+		$con['bagid'] = $userBag["bagid"];
 		$result=$View->where($con)->find();
 		if($result == FALSE)
 		{
 			$View = M('user_view');
 			$View->create(); 
-			$View->bagid = $userBag["id"];
+			$View->bagid = $userBag["bagid"];
 			$View->openid = $userBag["openid"];
 			$View->view_openid= $openid;
 			$View->ctime = time();
 			$r = $View->add();
 		}
     } 
+	
+	private function getUserByBagId($bagid){
+		
+		$User = M('user_bag');
+		$con['bagid'] = $bagid;
+		//$con['isfinish'] = 0;
+		$result=$User->where($con)->find();
+	    return $result;
+	}
 	
 	private function getRandomBagType(){
 		

@@ -51,7 +51,7 @@ class AuthAction extends Action {
              * 如果连接参数中不带有code参数，说明不是来自微信OAuth2.0受权返回的页面
              * 判断session的信息是否过期，如果没有信息或者过期，说明需要重新受权
              */
-            if(session("?openidtime")){
+            if(session("openidtime")){
                 $dtime = time()-session("openidtime");
                 if($dtime > C("wx_webauth_expire")){
                     //受权过期，删除session中的信息
@@ -186,9 +186,9 @@ class AuthAction extends Action {
      * @return array
      */ 
     protected function get_weixin_access_token() {
-       // if(S("wx_access_token")){
-      //      return S("wx_access_token");
-       // }
+       if(S("wx_access_token")){
+           return S("wx_access_token");
+       }
         $url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=".C("wx_appID")."&secret=".C("wx_appsecret");
         $Token = $this->curlGetInfo($url);
         $data = json_decode($Token, true);
@@ -197,7 +197,7 @@ class AuthAction extends Action {
             return false;
         }
         S('wx_access_token',$data["access_token"],6000);
-        return $data["access_token"];
+        return S("wx_access_token");
 
     }
 
