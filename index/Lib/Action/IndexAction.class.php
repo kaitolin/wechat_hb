@@ -4,9 +4,9 @@ import('@.Common.Jssdk');
 class IndexAction extends AuthAction {
     public function _initialize() {
         //initialize
-        parent::_initialize();
+        //parent::_initialize();
     }
-    public function index(){
+    public function index2(){
         header("Content-Type: text/html; charset=UTF-8");
         header("Cache-Control: no-cache");
 		header("expires: -1");
@@ -99,9 +99,159 @@ class IndexAction extends AuthAction {
 				$this->display();
 		    }
 		}
-    } 
+    }
 
-     public function view(){
+    public function index(){
+        header("Content-Type: text/html; charset=UTF-8");
+        header("Cache-Control: no-cache");
+		header("expires: -1");
+		header("pragma: no-cache;");
+ 		$_SESSION["openid"] = 'bbb';
+		$user["nickname"] ="test";
+		session('user',$user);
+		
+		
+		$this->assign('uid',$_SESSION["openid"]);
+		$this->user = $_SESSION["user"];
+		$jssdk = new JSSDK(C("wx_appID"),C("wx_appsecret"));
+		$signPackage = $jssdk->GetSignPackage(); 
+		$this->signPackage = $signPackage;
+		
+		if(isset($_POST['action']) && $_POST['action'] == "game")
+		{
+			$this->bag =$_SESSION["bag"];
+			$this->display("Index:game");
+			
+		}
+		else if(isset($_POST['action']) &&$_POST['action'] == "get")
+		{
+			//当前用户是不是有记录
+			$currentUser = $this->getUser($_SESSION["openid"]);
+			if(!isset($currentUser))
+			{
+				$this->addUser();
+			}
+			//获取当前Bag状态
+			//$userBag=$this->getUserBag($_SESSION["openid"]);
+			if(isset($_SESSION["bag"]) && isset($_SESSION["user"]))
+			{
+				$this->addUserBag($_SESSION["bag"]);
+				$this->bag =$_SESSION["bag"];
+				$this->display("Index:get");
+			}
+			else
+			{
+				//显示默认页
+				$bag = $this->getRandomBagType();
+				$_SESSION["bag"] = $bag; //设置得到的bag的Session
+				$this->bag =$_SESSION["bag"];
+				$this->display();
+			}
+		}
+		else 
+		{
+			$par = $_GET['_URL_'][2];   //u
+			$get_bagid = $_GET['_URL_'][3];   //openid
+			
+			if(isset($par) && isset($get_bagid))
+			{
+				$oldBag = $this->getUserByBagId($get_bagid);
+			
+				if(isset($oldBag))
+				{
+				   $oldBag['bagCount'] = $this->getUserBagCount($get_bagid);
+				
+				   if(isset($_SESSION["openid"]) && $_SESSION["openid"] != $oldBag["openid"])
+					{
+						$oldBag['utype'] = 1;
+						
+						//其它用户
+						if($oldBag['bagCount'] <3)
+						{
+							$count = 3 - $oldBag['bagCount'];
+				   	  	    $msg = '帮'.$oldBag['nickname'].'拆开'.$oldBag['bagtitle'].'元红包,已经被拆'.$oldBag['bagCount'].'次,还差'.$count.'次就可以拆开了!';
+				   		
+				   		
+				   			$has = $this->hasUserView($_SESSION["openid"], $oldBag);
+							if($has == TRUE)
+							{
+								$chaiMsg = "你已经拆过了!"; 
+								$oldBag['canChai'] = FALSE;
+							}
+							else
+							{
+								$oldBag['canChai'] = TRUE;
+							}
+						}
+						else
+						{
+							 $msg = $oldBag['nickname'].'的'.$oldBag['bagtitle'].'元红包已被拆开!';
+							 $oldBag['canChai'] = FALSE;
+						}
+					}
+				   else
+				   {
+				   		$oldBag['utype'] = 2;
+						$oldBag['canChai'] = FALSE;
+				   	  	//当前用户
+				   	  	if($oldBag['bagCount'] <3)
+						{
+							$count = 3 - $oldBag['bagCount'];
+				   	  	    $msg = $oldBag['bagtitle'].'元红包已经被拆'.$oldBag['bagCount'].'次,还差'.$count.'次就可以拆开了!';
+				   		}
+						else
+						{
+							 $msg = $oldBag['bagtitle'].'元红包已被拆开!';
+							 $oldBag['canDui'] = TRUE;
+						}
+				   }
+				    $this->msg =$msg ;
+				    $this->chaiMsg =$chaiMsg ;
+				    
+				   	$this->bag =$oldBag;
+				   	$this->display("Index:view");
+				}
+				else
+				{
+					//显示默认页
+					$bag = $this->getRandomBagType();
+					$_SESSION["bag"] = $bag; //设置得到的bag的Session
+					$this->bag =$_SESSION["bag"];
+					$this->display();
+				}
+			}
+			else //显示默认页
+			{
+				$bag = $this->getRandomBagType();
+				$_SESSION["bag"] = $bag; //设置得到的bag的Session
+				$this->bag =$_SESSION["bag"];
+				$this->display();
+			}
+		}
+    }
+	public function ajaxView()
+	{
+		$arr->result = FALSE;
+		if(isset($_POST['bagid']) )
+		{
+			$bagid =  $_POST['bagid'];
+			//添加访问记录
+			$oldBag = $this->getUserByBagId($bagid);
+			if(isset($_SESSION["openid"]) && $_SESSION["openid"] != $oldBag["openid"])
+			{
+				
+				$this->addUserView($_SESSION["openid"],$oldBag);
+				$oldBag['bagCount'] = $this->getUserBagCount($bagid);
+				$arr->result =TRUE;
+				$arr->msg = '';
+				$arr->count = $oldBag['bagCount'];
+				
+			}
+		}
+		$this->ajaxReturn (json_encode($arr),'JSON');
+	}
+
+     public function view2(){
      	 header("Content-Type: text/html; charset=UTF-8");
    		$this->assign('uid',$_SESSION["openid"]);
 		
@@ -195,6 +345,15 @@ class IndexAction extends AuthAction {
 			$View->ctime = time();
 			$r = $View->add();
 		}
+    } 
+	
+	private function hasUserView($openid,$userBag){
+   		$View = M('user_view');
+		$con['openid'] = $userBag["openid"];
+		$con['view_openid'] = $openid;
+		$con['bagid'] = $userBag["bagid"];
+		$result=$View->where($con)->find();
+		return $result;
     } 
 	
 	private function getUserByBagId($bagid){

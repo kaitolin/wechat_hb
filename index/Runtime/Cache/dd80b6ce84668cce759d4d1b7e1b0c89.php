@@ -22,11 +22,12 @@
         var GameSetting = {
                 type:1,
             };
+            alert(<?php echo ($uid); ?>);
     </script>
     <base href="/weixin_auth/" />
 </head>
 <body style="padding:0; margin: 0; ">
-	<input id="u" type="hidden" value="<?php echo ($signPackage['openId']); ?>" />
+	<input id="u" type="hidden" value="<?php echo ($bag['bagcode']); ?>" />
 <canvas id="gameCanvas" width="800" height="450"></canvas>
 
 <script src="game.min.js"></script>

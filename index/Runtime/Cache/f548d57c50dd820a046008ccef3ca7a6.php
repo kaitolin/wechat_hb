@@ -78,10 +78,10 @@
 			$("#btnShare").click(function () {
 				$('#guide').css('visibility', 'visible');
                    wx.onMenuShareTimeline({
-					      title: '抢红包',
+					      title: '114家抢红包',
 					      desc: '抢红包',
 					      link: '<?php echo ($signPackage["url"]); ?>',
-					      imgUrl: 'http://img3.douban.com/view/movie_poster_cover/spst/public/p2166127561.jpg',
+					      imgUrl: '__Public__/img/logo.jpg',
 					      success: function (res) {
 					        //alert('已分享');
 					      },
@@ -102,9 +102,12 @@
 		</script>
 	</head>
 	<body>
+		<div style="display: none;">
+			<img src="__Public__/img/logo.jpg" />
+		</div>
 		<div id="divShare">
 			<div class="page-header">
-				<h1>恭喜获得红包</h1>
+				<h1>恭喜获得红包<?php echo ($bag["bagtitle"]); ?>元</h1>
 			</div>
 			<p class="lead">分享到朋友圈,有3个好友点击即可获取<?php echo ($bag["bagtitle"]); ?>元红包</p>
 			<button id="btnShare" class="btn btn-danger" type="button">分享</button>
