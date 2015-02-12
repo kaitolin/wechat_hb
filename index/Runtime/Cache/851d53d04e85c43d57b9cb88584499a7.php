@@ -87,18 +87,19 @@
 
 			 $('#btnGame').click(function () {
 			 	//location.href = "__URL__/game";
-			 	post('__URL__/index/u/<?php echo ($bag['bagcode']); ?>', {action :'get'});
+			 	post('__URL__/index', {action :'game'});
+			 	//post('__URL__/index/u/<?php echo ($bag['bagcode']); ?>', {action :'get'});
+			 	
             });
 		 });
 		</script>
-		<style type="text/css">
-			
-			.bg{background:url("__PUBLIC__/img/grap-bg.png") no-repeat center fixed;background-size:contain}
-		</style>
 	</head>
 
 
 	<body >
+		<div id="background" style="position:absolute;z-index:-1;width:100%;height:100%;top:0px;left:0px;">
+				<img src="__PUBLIC__/img/grap-bg.png" width="100%" />
+		</div>
 		<div id="divStart"  >
 			<div class="page-header">
 				<h1>玩游戏得红包</h1>

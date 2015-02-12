@@ -4,7 +4,7 @@
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width,initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-		<title>查看红包</title>
+		<title>拆红包</title>
 		<link href="__PUBLIC__/css/bootstrap.min.css" rel="stylesheet" />
         <script src="__PUBLIC__/js/jquery.min.js"></script>
 		<script src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
@@ -70,6 +70,37 @@
 //			      }
 //			    });
 			  //wx.hideOptionMenu();
+			   wx.onMenuShareTimeline({
+					      title: '114家抢红包',
+					      desc: '抢红包',
+					      link: '{$signPackage.url}',
+					      imgUrl: '{$url}__PUBLIC__/img/logo.jpg',
+					      success: function (res) {
+					        alert('已分享');
+					      },
+					      cancel: function (res) {
+					        alert('已取消');
+					      },
+					      fail: function (res) {
+					        alert(JSON.stringify(res));
+					      }
+					    });
+					 
+				wx.onMenuShareAppMessage({
+					      title: '114家抢红包',
+					      desc: '抢红包',
+					      link: '{$signPackage.url}',
+					      imgUrl: '{$url}__PUBLIC__/img/logo.jpg',
+					      success: function (res) {
+					        alert('已分享');
+					      },
+					      cancel: function (res) {
+					        alert('已取消');
+					      },
+					      fail: function (res) {
+					        alert(JSON.stringify(res));
+					      }
+					    });
 			});
 			wx.error(function (res) {
 			  //alert(res.errMsg);
@@ -93,33 +124,23 @@
             });
             
             $('#btnChai').click(function () {
-		            $.post("__URL__/ajaxView",{bagid:
+		            $.post("__URL__/ajaxView",
 		            	<?php
-		            	echo $bag['bagcode'];
+		            	echo '{bagid:"'.$bag['bagcode'].'"}';
 		            	?>
-		            },function(result){
-  						 alert(result);
- 				 });
+		            ,function(d){
+		            	//alert(d);
+		            	var data =JSON.parse(d);
+		            	if(data.result)
+		            	{
+		            		$('#btnChai').css('display', 'none');
+		            		$('#divMsg').html(data.msg);
+		            	}
+   				 });
             });
             
             $("#btnShare").click(function () {
 				$('#guide').css('visibility', 'visible');
-                   wx.onMenuShareTimeline({
-					      title: '114家抢红包',
-					      desc: '抢红包',
-					      link: '{$signPackage.url}',
-					      imgUrl: '__Public__/img/logo.jpg',
-					      success: function (res) {
-					        //alert('已分享');
-					      },
-					      cancel: function (res) {
-					        //alert('已取消');
-					      },
-					      fail: function (res) {
-					        //alert(JSON.stringify(res));
-					      }
-					    });
-					  
             });
  
             $('#guide').click(function () {
@@ -136,12 +157,15 @@
 		<div style="display: none;">
 			<img src="__Public__/img/logo.jpg" />
 		</div>
-
+<div id="background" style="position:absolute;z-index:-1;width:100%;height:100%;top:0px;left:0px;">
+				<img src="__PUBLIC__/img/grap-bg.png" width="100%" />
+		</div>
 		<div id="divStart">
 			<div class="page-header">
 				<h1>拆红包</h1>
 			</div>
-				<h5>{$msg}<h5>
+			<div id='divMsg'><h5 >{$msg}<h5></div>
+				
 	<?php 
 		if($bag['utype'] == 2) 
 		{
@@ -166,7 +190,6 @@
 	<?php
 			}
 	?>		
-			
 			<button id="btnMore" class="btn btn-default"  type="button">我也要领取一个</button>
 	<?php
 		}

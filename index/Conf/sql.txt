@@ -3,14 +3,14 @@
 -- http://www.phpmyadmin.net
 --
 -- 主机: 127.0.0.1:3306
--- 生成日期: 2015 年 02 月 04 日 09:21
+-- 生成日期: 2015 年 02 月 12 日 14:49
 -- 服务器版本: 5.1.28
 -- PHP 版本: 5.2.6
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 
 --
--- 数据库: `wechat`
+-- 数据库: `wechat_hb`
 --
 
 -- --------------------------------------------------------
@@ -28,30 +28,71 @@ CREATE TABLE IF NOT EXISTS `product_type` (
 --
 -- 导出表中的数据 `product_type`
 --
-
 INSERT INTO `product_type` (`Id`, `Name`) VALUES
 (1, '112');
+-- --------------------------------------------------------
+
+--
+-- 表的结构 `wc_user`
+--
+
+CREATE TABLE IF NOT EXISTS `wc_user` (
+  `openid` varchar(32) NOT NULL,
+  `nickname` varchar(32) DEFAULT NULL,
+  `sex` int(4) DEFAULT NULL,
+  `subscribe` int(4) DEFAULT NULL,
+  `language` varchar(20) DEFAULT NULL,
+  `city` varchar(32) DEFAULT NULL,
+  `province` varchar(32) DEFAULT NULL,
+  `country` varchar(32) DEFAULT NULL,
+  `headimgurl` text,
+  `subscribe_time` varchar(20) DEFAULT NULL,
+  `viewtime` varchar(20) NOT NULL,
+  PRIMARY KEY (`openid`),
+  KEY `openid` (`openid`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+--
+-- 导出表中的数据 `wc_user`
+--
 
 -- --------------------------------------------------------
 
 --
--- 表的结构 `wc_view_user`
+-- 表的结构 `wc_user_bag`
 --
 
-CREATE TABLE IF NOT EXISTS `wc_view_user` (
+CREATE TABLE IF NOT EXISTS `wc_user_bag` (
+  `bagid` varchar(50) NOT NULL,
   `openid` varchar(32) NOT NULL,
-  `nickname` varchar(32) NULL,
-  `sex` int(4) NULL,
-  `subscribe` int(4) NULL,
-  `language` varchar(20) NULL,
-  `city` varchar(32) NULL,
-  `province` varchar(32) NULL,
-  `country` varchar(32) NULL,
-  `headimgurl` text NULL,
-  `subscribe_time` timestamp  NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `nickname` varchar(32) DEFAULT NULL,
+  `bagtitle` varchar(50) NOT NULL,
+  `bagtype` varchar(20) NOT NULL,
+  `bagdesc` text,
+  `bagcode` varchar(32) NOT NULL,
+  `isfinish` int(4) NOT NULL DEFAULT '0',
+  `ctime` varchar(20) NOT NULL,
+  PRIMARY KEY (`bagid`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
 --
--- 导出表中的数据 `wc_view_user`
+-- 导出表中的数据 `wc_user_bag`
 --
 
+-- --------------------------------------------------------
+
+--
+-- 表的结构 `wc_user_view`
+--
+
+CREATE TABLE IF NOT EXISTS `wc_user_view` (
+  `bagid` varchar(50) NOT NULL,
+  `openid` varchar(32) NOT NULL,
+  `view_openid` varchar(32) NOT NULL,
+  `ctime` varchar(20) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+--
+-- 导出表中的数据 `wc_user_view`
+--
+\

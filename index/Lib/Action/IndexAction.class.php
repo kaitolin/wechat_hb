@@ -4,7 +4,7 @@ import('@.Common.Jssdk');
 class IndexAction extends AuthAction {
     public function _initialize() {
         //initialize
-        //parent::_initialize();
+        parent::_initialize();
     }
     public function index2(){
         header("Content-Type: text/html; charset=UTF-8");
@@ -106,10 +106,13 @@ class IndexAction extends AuthAction {
         header("Cache-Control: no-cache");
 		header("expires: -1");
 		header("pragma: no-cache;");
- 		$_SESSION["openid"] = 'bbb';
-		$user["nickname"] ="test";
-		session('user',$user);
+// 		$_SESSION["openid"] = 'ccc';
+//		$user["nickname"] ="test";
+//		session('user',$user);
 		
+		$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
+    	$url = "$protocol$_SERVER[HTTP_HOST]";
+		$this->url = $url;
 		
 		$this->assign('uid',$_SESSION["openid"]);
 		$this->user = $_SESSION["user"];
@@ -175,7 +178,7 @@ class IndexAction extends AuthAction {
 				   			$has = $this->hasUserView($_SESSION["openid"], $oldBag);
 							if($has == TRUE)
 							{
-								$chaiMsg = "你已经拆过了!"; 
+								$msg = $msg."<br>你已经拆过了!"; 
 								$oldBag['canChai'] = FALSE;
 							}
 							else
@@ -243,7 +246,7 @@ class IndexAction extends AuthAction {
 				$this->addUserView($_SESSION["openid"],$oldBag);
 				$oldBag['bagCount'] = $this->getUserBagCount($bagid);
 				$arr->result =TRUE;
-				$arr->msg = '';
+				$arr->msg = $oldBag['nickname'].'谢谢你帮他拆红包!';
 				$arr->count = $oldBag['bagCount'];
 				
 			}
@@ -251,7 +254,7 @@ class IndexAction extends AuthAction {
 		$this->ajaxReturn (json_encode($arr),'JSON');
 	}
 
-     public function view2(){
+     private function view2(){
      	 header("Content-Type: text/html; charset=UTF-8");
    		$this->assign('uid',$_SESSION["openid"]);
 		

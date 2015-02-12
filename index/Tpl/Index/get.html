@@ -70,6 +70,37 @@
 //			      }
 //			    });
 			  //wx.hideOptionMenu();
+			    wx.onMenuShareTimeline({
+					      title: '114家抢红包',
+					      desc: '抢红包',
+					      link: '{$signPackage.url}',
+					      imgUrl: '{$url}__PUBLIC__/img/logo.jpg',
+					      success: function (res) {
+					        alert('已分享');
+					      },
+					      cancel: function (res) {
+					        alert('已取消');
+					      },
+					      fail: function (res) {
+					        alert(JSON.stringify(res));
+					      }
+					    });
+					 
+				wx.onMenuShareAppMessage({
+					      title: '114家抢红包',
+					      desc: '抢红包',
+					      link: '{$signPackage.url}',
+					      imgUrl: '{$url}__PUBLIC__/img/logo.jpg',
+					      success: function (res) {
+					        alert('已分享');
+					      },
+					      cancel: function (res) {
+					        alert('已取消');
+					      },
+					      fail: function (res) {
+					        alert(JSON.stringify(res));
+					      }
+					    });
 			});
 			wx.error(function (res) {
 			  //alert(res.errMsg);
@@ -77,22 +108,6 @@
 	   $(function () {
 			$("#btnShare").click(function () {
 				$('#guide').css('visibility', 'visible');
-                   wx.onMenuShareTimeline({
-					      title: '114家抢红包',
-					      desc: '抢红包',
-					      link: '{$signPackage.url}',
-					      imgUrl: '__Public__/img/logo.jpg',
-					      success: function (res) {
-					        //alert('已分享');
-					      },
-					      cancel: function (res) {
-					        //alert('已取消');
-					      },
-					      fail: function (res) {
-					        //alert(JSON.stringify(res));
-					      }
-					    });
-					  
             });
  
             $('#guide').click(function () {
@@ -104,6 +119,9 @@
 	<body>
 		<div style="display: none;">
 			<img src="__Public__/img/logo.jpg" />
+		</div>
+		<div id="background" style="position:absolute;z-index:-1;width:100%;height:100%;top:0px;left:0px;">
+				<img src="__PUBLIC__/img/grap-bg.png" width="100%" />
 		</div>
 		<div id="divShare">
 			<div class="page-header">
