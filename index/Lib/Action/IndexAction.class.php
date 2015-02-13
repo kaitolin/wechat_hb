@@ -6,107 +6,13 @@ class IndexAction extends AuthAction {
         //initialize
         parent::_initialize();
     }
-    public function index2(){
-        header("Content-Type: text/html; charset=UTF-8");
-        header("Cache-Control: no-cache");
-		header("expires: -1");
-		header("pragma: no-cache;");
- 		
- 		//http://doc.thinkphp.cn/manual/curd.html
- 		//添加
- 		//$User = M('view_user');
-//		$User->create(); //创建User数据对象
-//		$User->openid="sdadsadsasda";
-//		$User->nickname = "ads1"; // 设置默认的用户状态
-//		$User->viewtime = time(); // 设置用户的创建时间
-//		$User->add(); // 把用户对象写入数据库
-		
-	    // 更新
-	    //$data['nickname'] = '四大4四大大4声地11';
-//		$data['city'] = '11ThinkPH1P@gmail.com';
-//	    $condition['openid'] = 'sdadsadsasda';
-//	    $result = $User->where($condition)->save($data);
-//		$User->where('openid=sdadsadsasda')->find(); // 根据条件保存修改的数据
-//		dump($User->getField('nickname'));
-
-		//查询
-//		$Data=$User->where("openid='sdadsadsasda'")->find();
-//		dump($Data);
-		//dump($User->getField('nickname'));
-		
-		$this->assign('uid',$_SESSION["openid"]);
-		$this->user = $_SESSION["user"];
-		$jssdk = new JSSDK(C("wx_appID"),C("wx_appsecret"));
-		$signPackage = $jssdk->GetSignPackage(); 
-		$this->signPackage = $signPackage;
-		
-
-		if(isset($_POST['action']) && $_POST['action'] == "game")
-		{
-			$this->display("Index:game");
-		}
-		else 
-		{
-			$par = $_GET['_URL_'][2];   //u
-			$get_bagid = $_GET['_URL_'][3];   //openid
-			
-			if(isset($par) && isset($get_bagid))
-			{
-				$oldBag = $this->getUserByBagId($get_bagid);
-				if(isset($bagUser))
-				{
-				   $oldBag['bagCount'] = $this->getUserBagCount($get_bagid);
-				}
-			}
-
-			//当前用户是不是有记录
-			//$currentUser = $this->getUser($_SESSION["openid"]);
-			
-			//$this->currentUser =$currentUser;
-			
-			if(isset($_POST['action']) &&$_POST['action'] == "get")
-			{
-				//当前用户是不是有记录
-				$currentUser = $this->getUser($_SESSION["openid"]);
-				if(!isset($currentUser))
-				{
-					$this->addUser();
-				}
-				//获取当前Bag状态
-				//$userBag=$this->getUserBag($_SESSION["openid"]);
-				if(isset($_SESSION["bag"]) && isset($_SESSION["user"]))
-				{
-					$this->addUserBag($_SESSION["bag"]);
-				}
-				$this->bag =$_SESSION["bag"];
-				$this->display("Index:get");
-			}
-			else
-		    {
-		    	//添加访问记录
-		    	if(isset($oldBag))
-				{
-					if(isset($_SESSION["openid"]) && $_SESSION["openid"] != $oldBag["openid"])
-					{
-						$this->addUserView($_SESSION["openid"],$oldBag);
-					}
-				}
-				
-				$bag = $this->getRandomBagType();
-				$_SESSION["bag"] = $bag; //设置得到的bag的Session
-				$this->bag =$_SESSION["bag"];
-				$this->oldUser =$oldBag;
-				$this->display();
-		    }
-		}
-    }
-
+ 
     public function index(){
         header("Content-Type: text/html; charset=UTF-8");
         header("Cache-Control: no-cache");
 		header("expires: -1");
 		header("pragma: no-cache;");
-// 		$_SESSION["openid"] = 'ccc';
+// 		$_SESSION["openid"] = 'aaa';
 //		$user["nickname"] ="test";
 //		session('user',$user);
 		
@@ -253,6 +159,11 @@ class IndexAction extends AuthAction {
 		}
 		$this->ajaxReturn (json_encode($arr),'JSON');
 	}
+	
+	public function view()
+	{
+		$this->redirect("Index/index",'',0,"请先获取红包");
+	}
 
      private function view2(){
      	 header("Content-Type: text/html; charset=UTF-8");
@@ -388,8 +299,8 @@ class IndexAction extends AuthAction {
 		}
 		else
 		{
-			$bag["bagtype"] =4;
-			$bag["bagtitle"] =100;
+			$bag["bagtype"] =3;
+			$bag["bagtitle"] =20;
 		}
 	
 		$bag["bagcode"]= $this->create_guid_lite();
